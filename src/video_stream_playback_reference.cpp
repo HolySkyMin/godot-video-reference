@@ -74,7 +74,7 @@ void godot::VideoStreamPlaybackReference::_stop() {
 		video = nullptr;
 		audio = nullptr;
 
-		open_file(file_name); // Should not fail here...
+		// open_file(file_name); // Should not fail here...
 
 		video_frames_capacity = video_frames_pos = 0;
 		num_decoded_samples = 0;

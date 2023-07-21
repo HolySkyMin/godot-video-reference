@@ -26,9 +26,9 @@ opts.Add(
 )
 opts.Add(EnumVariable("bits", "Target platform bits", "64", ("32", "64")))
 opts.Add(BoolVariable("use_llvm", "Use the LLVM / Clang compiler", "no"))
-opts.Add(BoolVariable("test", "Build to test dir", "yes"))
-opts.Add(BoolVariable("dev_build", "Debug symbols", "yes"))
-opts.Add(PathVariable("target_path", "The path where the lib is installed.", "bin/", PathVariable.PathAccept))
+opts.Add(BoolVariable("test", "Build to test dir", "no"))
+opts.Add(BoolVariable("dev_build", "Debug symbols", "no"))
+opts.Add(PathVariable("target_path", "The path where the lib is installed.", "build/godot_video_reference/bin/", PathVariable.PathAccept))
 opts.Add(PathVariable("test_path", "The path where the test is installed.", "test/addons/godot_video_reference/bin/", PathVariable.PathAccept))
 opts.Add(PathVariable("target_name", "The library name.", "libgdvideo", PathVariable.PathAccept))
 opts.Add(BoolVariable("vsproj", "Generate a project for Visual Studio", "no"))
@@ -131,13 +131,18 @@ if env["target"] in ("debug", "editor"):
     env.Append(CPPDEFINES=["DEBUG_ENABLED", "DEBUG_METHODS_ENABLED"])
 
 # Check our platform specifics
-if env["platform"] == "osx":
-    env["target_path"] += "osx/"
-    env["test_path"] += "osx/"
-    cpp_library += ".osx"
-    env.Append(CCFLAGS=["-arch", "x86_64"])
+if env["platform"] == "osx":  # Godot uses 'macos' but leave 'osx' in SConscucts for less modification.
+    env["target_path"] += "macos/"
+    env["test_path"] += "macos/"
+    cpp_library += ".macos"
+    if env["arch"] == "x86_64":
+        env.Append(CCFLAGS=["-arch", "x86_64"])
+        env.Append(LINKFLAGS=["-arch", "x86_64"])
+    else:  # This consumes 'universal' also.
+        env.Append(CCFLAGS=["-arch", "arm64"])
+        env.Append(LINKFLAGS=["-arch", "arm64"])
     env.Append(CXXFLAGS=["-std=c++17"])
-    env.Append(LINKFLAGS=["-arch", "x86_64", "-ldl"])
+    env.Append(LINKFLAGS=["-ldl"])
     if env["target"] in ("debug", "d", "editor", "e"):
         env.Append(CCFLAGS=["-g", "-O2"])
     else:
@@ -162,11 +167,11 @@ elif env["platform"] == "windows":
     # that way you can run scons in a vs 2017 prompt and it will find all the required tools
     env.Append(ENV=os.environ)
 
-    env.Append(CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "_ITERATOR_DEBUG_LEVEL=2"])
+    env.Append(CPPDEFINES=["WIN32", "_WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS"])
     env.Append(CCFLAGS=["-W3", "-GR"])
     env.Append(CXXFLAGS=["-std:c++17"])
     if env["target"] in ("debug", "d", "editor", "e"):
-        env.Append(CPPDEFINES=["_DEBUG"])
+        env.Append(CPPDEFINES=["_DEBUG", "_ITERATOR_DEBUG_LEVEL=2"])
         env.Append(CCFLAGS=["-EHsc", "-MDd", "-ZI", "-FS"])
         env.Append(LINKFLAGS=["-DEBUG", "/MACHINE:" + env['msvc_arch']])
     else:
