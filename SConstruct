@@ -28,7 +28,7 @@ opts.Add(EnumVariable("bits", "Target platform bits", "64", ("32", "64")))
 opts.Add(BoolVariable("use_llvm", "Use the LLVM / Clang compiler", "no"))
 opts.Add(BoolVariable("test", "Build to test dir", "no"))
 opts.Add(BoolVariable("dev_build", "Debug symbols", "no"))
-opts.Add(PathVariable("target_path", "The path where the lib is installed.", "build/godot_video_reference/bin/", PathVariable.PathAccept))
+opts.Add(PathVariable("target_path", "The path where the lib is installed.", "output/godot_video_reference/bin/", PathVariable.PathAccept))
 opts.Add(PathVariable("test_path", "The path where the test is installed.", "test/addons/godot_video_reference/bin/", PathVariable.PathAccept))
 opts.Add(PathVariable("target_name", "The library name.", "libgdvideo", PathVariable.PathAccept))
 opts.Add(BoolVariable("vsproj", "Generate a project for Visual Studio", "no"))
@@ -72,7 +72,7 @@ if env['arch'] == "":
     # No architecture specified. Default to arm64 if building for Android,
     # universal if building for macOS or iOS, wasm32 if building for web,
     # otherwise default to the host architecture.
-    if env["platform"] in ["osx", "ios"]:
+    if env["platform"] == "ios":
         env["arch"] = "universal"
     elif env["platform"] == "android":
         env["arch"] = "arm64"
@@ -136,9 +136,11 @@ if env["platform"] == "osx":  # Godot uses 'macos' but leave 'osx' in SConscucts
     env["test_path"] += "macos/"
     cpp_library += ".macos"
     if env["arch"] == "x86_64":
+        env["target_name"] += "_x86_64"
         env.Append(CCFLAGS=["-arch", "x86_64"])
         env.Append(LINKFLAGS=["-arch", "x86_64"])
     else:  # This consumes 'universal' also.
+        env["target_name"] += "_arm64"
         env.Append(CCFLAGS=["-arch", "arm64"])
         env.Append(LINKFLAGS=["-arch", "arm64"])
     env.Append(CXXFLAGS=["-std=c++17"])
