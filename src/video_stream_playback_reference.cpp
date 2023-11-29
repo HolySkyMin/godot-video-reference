@@ -68,12 +68,6 @@ void godot::VideoStreamPlaybackReference::_stop() {
 	if (playing) {
 		delete_pointers();
 
-		audio_frame = nullptr;
-		video_frames = nullptr;
-
-		video = nullptr;
-		audio = nullptr;
-
 		// open_file(file_name); // Should not fail here...
 
 		video_frames_capacity = video_frames_pos = 0;
@@ -286,26 +280,31 @@ inline bool godot::VideoStreamPlaybackReference::has_enough_video_frames() const
 }
 
 void godot::VideoStreamPlaybackReference::delete_pointers() {
-
+	// Why not resetting pointers here?...
 	if (audio_frame) {
 		memdelete(audio_frame);
+		audio_frame = nullptr;
 	}
 	if (video_frames) {
 		for (int i = 0; i < video_frames_capacity; ++i) {
 			memdelete(video_frames[i]);
 		}
 		memfree(video_frames);
+		video_frames = nullptr;
 	}
 
 	if (video) {
 		memdelete(video);
+		video = nullptr;
 	}
 	if (audio) {
 		memdelete(audio);
+		audio = nullptr;
 	}
 
 	if (webm) {
 		memdelete(webm);
+		webm = nullptr;
 	}
 }
 

@@ -174,7 +174,7 @@ elif env["platform"] == "windows":
     env.Append(CXXFLAGS=["-std:c++17"])
     if env["target"] in ("debug", "d", "editor", "e"):
         env.Append(CPPDEFINES=["_DEBUG", "_ITERATOR_DEBUG_LEVEL=2"])
-        env.Append(CCFLAGS=["-EHsc", "-MDd", "-ZI", "-FS"])
+        env.Append(CCFLAGS=["-EHsc", "-MD", "-ZI", "-FS"])
         env.Append(LINKFLAGS=["-DEBUG", "/MACHINE:" + env['msvc_arch']])
     else:
         env.Append(CPPDEFINES=["NDEBUG"])
